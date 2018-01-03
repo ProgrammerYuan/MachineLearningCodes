@@ -28,4 +28,4 @@ octave-workspace
 .DS_Store
 
 # Personal Data
-*.mat
+token.mat
