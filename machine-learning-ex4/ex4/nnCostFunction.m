@@ -24,8 +24,18 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 % Setup some useful variables
 m = size(X, 1);
-         
-% You need to return the following variables correctly 
+X = [ones(m,1), X];
+y_matrix = zeros(num_labels, m);
+for i = 1:m
+    y_matrix(y(i), i) = 1;
+end
+Theta1_cost = Theta1;
+Theta1_cost(:, 1) = 0;
+
+Theta2_cost = Theta2;
+Theta2_cost(:, 1) = 0;
+
+% You need to return the following variables correctly
 J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
@@ -61,23 +71,35 @@ Theta2_grad = zeros(size(Theta2));
 %               the regularization separately and then add them to Theta1_grad
 %               and Theta2_grad from Part 2.
 %
+a1 = X';
+z2 = Theta1 * a1;
+a2 = sigmoid(z2);
+a2 = [ones(1,m);a2];
+z3 = Theta2 * a2;
+a3 = sigmoid(z3);
+
+positive_J = -y_matrix .* log(a3);
+negative_J = (1 - y_matrix) .* log(1 - a3);
+J = sum(sum(positive_J - negative_J)) / m + (lambda / (2 * m)) * (sum(sum(Theta1_cost.^2)) + sum(sum(Theta2_cost.^2)));
+
+% a3/z3 : 10 * 5000
+% sigma3 : 10 * 5000
+% a2/z2 : 25 * 5000
+% sigma2 : 25 * 5000
+% a1 : 5000 * 401
+sigma3 = a3 - y_matrix;
+Theta2_grad = Theta2_grad + sigma3 * a2';
+sigma2_temp = Theta2' * sigma3;
+% size(sigma2_temp(2:hidden_layer_size, :))
+% size(z2)
+sigma2 = sigma2_temp(2:hidden_layer_size + 1, :) .* sigmoidGradient(z2);
+% size(Theta1_grad)
+% size(sigma2 * a1')
+Theta1_grad = Theta1_grad + (sigma2 * a1');
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Theta1_grad = (Theta1_grad + Theta1_cost * lambda) / m;
+Theta2_grad = (Theta2_grad + Theta2_cost * lambda) / m;
 
 
 % -------------------------------------------------------------
