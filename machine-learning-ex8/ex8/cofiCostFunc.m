@@ -40,8 +40,33 @@ Theta_grad = zeros(size(Theta));
 %                     partial derivatives w.r.t. to each element of Theta
 %
 
+% Non-Vectorized Solution
+% [I1, I2] = ind2sub(size(R), find(R == 1));
+% m = length(I1);
+% 
+% for i = 1:m
+%     J = J + (Theta(I2(i), :) * X(I1(i), :)' - Y(I1(i), I2(i))) .^2;
+% end
+% 
+% J = J / 2;
 
+% Vectorized Solution
 
+H = X * Theta';
+
+HmY = H - Y;
+
+J_matrix = HmY.^2;
+
+J = sum(sum(R .* J_matrix)) / 2 + lambda * (sum(X(:).^2) + sum(Theta(:).^2))/ 2;
+
+% Gradient Computation
+% HmY : n_movies * n_users
+% X & X_Grad : n_movies * n_features
+% Theta & Theta_Grad : n_users * n_features
+
+X_grad = (HmY .* R) * Theta + lambda * X;
+Theta_grad = (HmY .* R)' * X + lambda * Theta;
 
 
 

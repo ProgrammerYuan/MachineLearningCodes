@@ -6,6 +6,7 @@ function [bestEpsilon bestF1] = selectThreshold(yval, pval)
 %   validation set (pval) and the ground truth (yval).
 %
 
+m = length(yval);
 bestEpsilon = 0;
 bestF1 = 0;
 F1 = 0;
@@ -22,7 +23,14 @@ for epsilon = min(pval):stepsize:max(pval)
     %               
     % Note: You can use predictions = (pval < epsilon) to get a binary vector
     %       of 0's and 1's of the outlier predictions
-
+    predictions = (pval < epsilon);
+    true_positive = sum(yval(predictions));
+    false_positive = sum(predictions) - true_positive;
+    zero_predictions = predictions == 0;
+    false_negative = sum(yval(zero_predictions));
+    p = true_positive / (true_positive + false_positive);
+    r = true_positive / (true_positive + false_negative);
+    F1 = 2 * p * r / (p + r); 
 
 
 
